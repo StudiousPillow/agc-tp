@@ -110,7 +110,7 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
     sequences = (read_fasta(amplicon_file, minseqlen))
     count = Counter(sequences)
     count = count.most_common()
-    for item in count.items():
+    for item in count:
         yield list(item)
         
 
@@ -120,7 +120,13 @@ def get_identity(alignment_list: List[str]) -> float:
     :param alignment_list:  (list) A list of aligned sequences in the format ["SE-QUENCE1", "SE-QUENCE2"]
     :return: (float) The rate of identity between the two sequences.
     """
-    pass
+    nb_identique = 0
+    len_align = len(alignment_list[0])
+    for base_idx in range(len_align):
+        if alignment_list[0][base_idx]==alignment_list[1][base_idx]:
+            nb_identique += 1
+    id = nb_identique/len_align*100
+    return(id)
 
 def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: int, chunk_size: int, kmer_size: int) -> List:
     """Compute an abundance greedy clustering regarding sequence count and identity.
@@ -133,7 +139,10 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     :param kmer_size: (int) A fournir mais non utilise cette annee
     :return: (list) A list of all the [OTU (str), count (int)] .
     """
-    pass
+    sequences = dereplication_fulllength(amplicon_file, minseqlen, mincount)
+    for seq in sequences:
+        threshold = seq[1]
+        for seq2 in sequences[sequences[0]]
 
 
 def write_OTU(OTU_list: List, output_file: Path) -> None:

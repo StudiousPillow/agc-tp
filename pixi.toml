@@ -1,0 +1,16 @@
+[project]
+channels = ["conda-forge", "bioconda"]
+description = "Add a short description here"
+name = "agc-tp"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+numpy = "==1.19.5"
+nwalign3 = ">=0.1.2,<0.2"
+python = "==3.9"
+pytest = ">=8.3.3,<9"
+pylint = ">=3.3.1,<4"
+pytest-cov = ">=5.0.0,<6"

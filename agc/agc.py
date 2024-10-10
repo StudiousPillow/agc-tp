@@ -83,7 +83,20 @@ def read_fasta(amplicon_file: Path, minseqlen: int) -> Iterator[str]:
     :param minseqlen: (int) Minimum amplicon sequence length
     :return: A generator object that provides the Fasta sequences (str).
     """
-    pass
+    amplicon_file = isfile(amplicon_file)
+    with gzip.open(amplicon_file, "rb") as handle:
+        lines = iter(handle.readlines())
+        seq = ''
+        for line in lines:
+            line = line.decode('utf-8').strip()
+            if line.startswith('>'):
+                if len(seq)>=minseqlen:
+                    yield seq
+                    seq = ''
+            else:
+                seq = seq + str(line)
+        if len(seq)>=minseqlen:
+            yield seq
 
 
 def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int) -> Iterator[List]:
@@ -94,7 +107,12 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
     :param mincount: (int) Minimum amplicon count
     :return: A generator object that provides a (list)[sequences, count] of sequence with a count >= mincount and a length >= minseqlen.
     """
-    pass
+    sequences = (read_fasta(amplicon_file, minseqlen))
+    count = Counter(sequences)
+    count = count.most_common()
+    for item in count.items():
+        yield list(item)
+        
 
 def get_identity(alignment_list: List[str]) -> float:
     """Compute the identity rate between two sequences
@@ -135,9 +153,11 @@ def main(): # pragma: no cover
     Main program function
     """
     # Get arguments
-    args = get_arguments()
+    # args = get_arguments()
     # Votre programme ici
-
+    # print(read_fasta("data/amplicon.fasta.gz",200))
+    test = dereplication_fulllength("data/amplicon.fasta.gz", 200,  2)
+    print([t for t in test])
 
 
 if __name__ == '__main__':

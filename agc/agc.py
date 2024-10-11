@@ -139,11 +139,18 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     :param kmer_size: (int) A fournir mais non utilise cette annee
     :return: (list) A list of all the [OTU (str), count (int)] .
     """
-    sequences = dereplication_fulllength(amplicon_file, minseqlen, mincount)
-    for seq in sequences:
-        threshold = seq[1]
-        for seq2 in sequences[sequences[0]]
-
+    sequences = list(dereplication_fulllength(amplicon_file, minseqlen, mincount))
+    OTU = []
+    for idxseq in range(len(sequences)):
+        threshold = sequences[idxseq][1]
+        for idxseq2 in range(len(sequences[idxseq:])):
+            if sequences[idxseq2][1]>threshold:
+                ## returns a set with the two aligned sequences
+                alignement = nw.global_align(sequences[idxseq][0],sequences[idxseq2][0])
+                if not get_identity(list(alignement))>97:
+                    OTU.append(sequences[idxseq])
+    return OTU
+                    
 
 def write_OTU(OTU_list: List, output_file: Path) -> None:
     """Write the OTU sequence in fasta format.
@@ -151,8 +158,12 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     :param OTU_list: (list) A list of OTU sequences
     :param output_file: (Path) Path to the output file
     """
-    pass
-
+    n=0
+    with open(output_file, 'w') as handle:
+        for otu in OTU_list:
+            n+=1
+            handle.write(f'>OTU_{n} occurence:{otu[1]}')
+            handle.write(textwrap.fill(otu[0],width=80))
 
 #==============================================================
 # Main program
@@ -165,9 +176,9 @@ def main(): # pragma: no cover
     # args = get_arguments()
     # Votre programme ici
     # print(read_fasta("data/amplicon.fasta.gz",200))
-    test = dereplication_fulllength("data/amplicon.fasta.gz", 200,  2)
-    print([t for t in test])
-
+    OTU_list = abundance_greedy_clustering('data/amplicon.fasta.gz', 200, 2, 3, 3)
+    print("writing")
+    write_OTU(OTU_list, "data/OTU_found.fasta")
 
 if __name__ == '__main__':
     main()

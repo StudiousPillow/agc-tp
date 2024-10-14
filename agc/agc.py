@@ -88,8 +88,6 @@ def read_fasta(amplicon_file: Path, minseqlen: int) -> Iterator[str]:
         lines = iter(handle.readlines())
         seq = ''
         for line in lines:
-            print(line, ":", len(line))
-            print("--")
             line = line.decode('utf-8').strip()
             if line.startswith('>'):
                 if len(seq)>=minseqlen:
@@ -112,8 +110,9 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
     sequences = (read_fasta(amplicon_file, minseqlen))
     count = Counter(sequences)
     count = count.most_common()
-    for item in count:
-        yield list(item)
+    for item in count: ## item is [sequence, count]
+        if item[1]>=mincount:
+            yield list(item)
         
 
 def get_identity(alignment_list: List[str]) -> float:

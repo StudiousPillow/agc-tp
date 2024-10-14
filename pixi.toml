@@ -6,6 +6,7 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
+test = "pytest --cov=agc -v -s --ignore=tests/test_chimera_removal.py"
 
 [dependencies]
 numpy = "==1.19.5"

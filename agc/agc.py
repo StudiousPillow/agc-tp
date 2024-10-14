@@ -142,14 +142,21 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     """
     sequences = list(dereplication_fulllength(amplicon_file, minseqlen, mincount))
     OTU = []
+    n = 0
     for idxseq in range(len(sequences)):
         threshold = sequences[idxseq][1]
+        # print("t", threshold)
         for idxseq2 in range(len(sequences[idxseq:])):
-            if sequences[idxseq2][1]>threshold:
-                ## returns a set with the two aligned sequences
-                alignement = nw.global_align(sequences[idxseq][0],sequences[idxseq2][0])
+            if sequences[idxseq2][1]>threshold: ## si plus abondante
+                # print("abondante")
+                alignement = nw.global_align(sequences[idxseq][0],
+                                             sequences[idxseq2][0]) ## returns a set with the two aligned sequences : (A-GT,ACG-)
                 if not get_identity(list(alignement))>97:
+                    
                     OTU.append(sequences[idxseq])
+                    n+=1
+                    print(n, end="\r")
+                    
     return OTU
                     
 
@@ -163,8 +170,10 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     with open(output_file, 'w') as handle:
         for otu in OTU_list:
             n+=1
-            handle.write(f'>OTU_{n} occurence:{otu[1]}')
+            handle.write(f'>OTU_{n} occurrence:{otu[1]}\n')
             handle.write(textwrap.fill(otu[0],width=80))
+            if n != len(OTU_list):
+                handle.write('\n')
 
 #==============================================================
 # Main program
@@ -177,31 +186,28 @@ def main(): # pragma: no cover
     # args = get_arguments()
     # Votre programme ici
     # print(read_fasta("data/amplicon.fasta.gz",200))
-    # OTU_list = abundance_greedy_clustering('data/amplicon.fasta.gz', 200, 2, 3, 3)
-    # print("writing")
-    # write_OTU(OTU_list, "data/OTU_found.fasta")
     
-    seq_gen = read_fasta("tests/test_sequences.fasta.gz", 200)
-    print(seq_gen)
-    gen1 = next(seq_gen)
-    gen2 = next(seq_gen)
-    print("test")
-    seq1 = "TGGGGAATATTGCACAATGGGCGCAAGCCTGATGCAGCCATGCCGCGTGTATGAAGAAGGCCTTCGGGTTGTAAAGTACTTTCAGCGGGGAGGAAGGTGTTGTGGTTAATAACCGCAGCAATTGACGTTACCCGCAGAAGAAGCACCGGCTAACTCCGTGCCAGCAGCCGCGGTAATACGGAGGGTGCAAGCGTTAATCGGAATTACTGGGCGGAAAGCGCA"
-    fasta1 = """TGGGGAATATTGCACAATGGGCGCAAGCCTGATGCAGCCATGCCGCGTGTATGAAGAAGGCCTTCGGGTTGTAAAGTACT
-    TTCAGCGGGGAGGAAGGTGTTGTGGTTAATAACCGCAGCAATTGACGTTACCCGCAGAAGAAGCACCGGCTAACTCCGTG
-    CCAGCAGCCGCGGTAATACGGAGGGTGCAAGCGTTAATCGGAATTACTGGGCGGAAAGCGCA"""
-    fasta2 = """TAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTCGGATCGTAAAACTCT
-GTTATTAGGGAAGAACATATGTGTAAGTAACTGTGCACATCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACGTG
-CCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTATCCGGAATTATTGGGCGTACAGCGCG"""
-    seq2 = "TAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTCGGATCGTAAAACTCTGTTATTAGGGAAGAACATATGTGTAAGTAACTGTGCACATCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACGTGCCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTATCCGGAATTATTGGGCGTACAGCGCG"
-    print(seq1, len(seq1))
-    print(fasta1, len(fasta1))
-    print(gen1, len(gen1))
-    print(seq1==gen1)
-    print(seq2, len(seq2))
-    print(fasta2, len(fasta2))
-    print(gen2, len(gen2))
-    print(seq2==gen2)
+    # seq1 = "ACTACGGGGCGCAGCAGTAGGGAATCTTCCGCAATGGACGAAAGTCTGACGGAGCAACGCCGCGTGTATGAAGAAGGTTTTCGGATCGTAAAGTACTGTTGTTAGAGAAGAACAAGGATAAGAGTAACTGCTTGTCCCTTGACGGTATCTAACCAGAAAGCCACGGCTAACTACGTGCCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTGTCCGGAGTTAGTGGGCGTAAAGCGCGCGCAGGCGGTCTTTTAAGTCTGATGTCAAAGCCCCCGGCTTAACCGGGGAGGGTCATTGGAAACTGGAAGACTGGAGTGCAGAAGAGGAGAGTGGAATTCCACGTGTAGCGGTGAAATGCGTAGATATGTGGAGGAACACCAGTGGCGAAGGCGACTCTCTGGTCTGTAACTGACGCTGAGGCGCGAAAGCGTGGGGAGCAAA"
+    # seq2 = "TAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTCGGATCGTAAAACTCTGTTATTAGGGAAGAACATATGTGTAAGTAACTGTGCACATCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACGTGCCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTATCCGGAATTATTGGGCGTACAGCGCG"
+    # print(seq1)
+    # print("--")
+    # OTU_list = abundance_greedy_clustering('tests/test_sequences.fasta.gz', 200, 3, 50, 8)
+    # print(seq1 in OTU_list)
+    
+    otu = [("TCAGCGAT", 8), ("TCAGCGAA", 8), ("ACAGCGAT", 8), ("ACAGCGAA", 8)]
+    write_OTU(otu, 'results/test.fasta')
+    import hashlib
+    with open('results/test.fasta', 'rb') as f:
+        print(hashlib.md5(f.read()).hexdigest())
+        print('0a7caf3d43ba5f0c68bc05cb74782dbb')
+    with open('results/test.fasta', 'r') as f:
+        print(f.read())
+    with open('results/test.fasta', 'r') as f:
+        print(repr(f.read()))
+        # print(f.read())
+    # write_OTU(OTU_list, "results/OTU_found.fasta")
+    
 
+    
 if __name__ == '__main__':
     main()

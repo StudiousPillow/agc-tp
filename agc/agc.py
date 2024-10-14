@@ -142,21 +142,19 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     """
     sequences = list(dereplication_fulllength(amplicon_file, minseqlen, mincount))
     OTU = []
-    n = 0
     for idxseq in range(len(sequences)):
+        otu_bool = True
         threshold = sequences[idxseq][1]
         # print("t", threshold)
-        for idxseq2 in range(len(sequences[idxseq:])):
-            if sequences[idxseq2][1]>threshold: ## si plus abondante
+        for otu in OTU:
+            if otu[1]>threshold: ## si plus abondante
                 # print("abondante")
                 alignement = nw.global_align(sequences[idxseq][0],
-                                             sequences[idxseq2][0]) ## returns a set with the two aligned sequences : (A-GT,ACG-)
-                if not get_identity(list(alignement))>97:
-                    
-                    OTU.append(sequences[idxseq])
-                    n+=1
-                    print(n, end="\r")
-                    
+                                             otu[0]) ## returns a set with the two aligned sequences : (A-GT,ACG-)
+                if get_identity(list(alignement))>97:
+                    otu_bool = False
+        if otu_bool:
+            OTU.append(sequences[idxseq])
     return OTU
                     
 
@@ -184,13 +182,6 @@ def main(): # pragma: no cover
     # args = get_arguments()
     # Votre programme ici
     # print(read_fasta("data/amplicon.fasta.gz",200))
-    
-    # seq1 = "ACTACGGGGCGCAGCAGTAGGGAATCTTCCGCAATGGACGAAAGTCTGACGGAGCAACGCCGCGTGTATGAAGAAGGTTTTCGGATCGTAAAGTACTGTTGTTAGAGAAGAACAAGGATAAGAGTAACTGCTTGTCCCTTGACGGTATCTAACCAGAAAGCCACGGCTAACTACGTGCCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTGTCCGGAGTTAGTGGGCGTAAAGCGCGCGCAGGCGGTCTTTTAAGTCTGATGTCAAAGCCCCCGGCTTAACCGGGGAGGGTCATTGGAAACTGGAAGACTGGAGTGCAGAAGAGGAGAGTGGAATTCCACGTGTAGCGGTGAAATGCGTAGATATGTGGAGGAACACCAGTGGCGAAGGCGACTCTCTGGTCTGTAACTGACGCTGAGGCGCGAAAGCGTGGGGAGCAAA"
-    # seq2 = "TAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTCGGATCGTAAAACTCTGTTATTAGGGAAGAACATATGTGTAAGTAACTGTGCACATCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACGTGCCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTATCCGGAATTATTGGGCGTACAGCGCG"
-    # print(seq1)
-    # print("--")
-    # OTU_list = abundance_greedy_clustering('tests/test_sequences.fasta.gz', 200, 3, 50, 8)
-    # print(seq1 in OTU_list)
     
     
 if __name__ == '__main__':

@@ -88,11 +88,13 @@ def read_fasta(amplicon_file: Path, minseqlen: int) -> Iterator[str]:
         lines = iter(handle.readlines())
         seq = ''
         for line in lines:
+            print(line, ":", len(line))
+            print("--")
             line = line.decode('utf-8').strip()
             if line.startswith('>'):
                 if len(seq)>=minseqlen:
                     yield seq
-                    seq = ''
+                seq = ''
             else:
                 seq = seq + str(line)
         if len(seq)>=minseqlen:
@@ -176,9 +178,31 @@ def main(): # pragma: no cover
     # args = get_arguments()
     # Votre programme ici
     # print(read_fasta("data/amplicon.fasta.gz",200))
-    OTU_list = abundance_greedy_clustering('data/amplicon.fasta.gz', 200, 2, 3, 3)
-    print("writing")
-    write_OTU(OTU_list, "data/OTU_found.fasta")
+    # OTU_list = abundance_greedy_clustering('data/amplicon.fasta.gz', 200, 2, 3, 3)
+    # print("writing")
+    # write_OTU(OTU_list, "data/OTU_found.fasta")
+    
+    seq_gen = read_fasta("tests/test_sequences.fasta.gz", 200)
+    print(seq_gen)
+    gen1 = next(seq_gen)
+    gen2 = next(seq_gen)
+    print("test")
+    seq1 = "TGGGGAATATTGCACAATGGGCGCAAGCCTGATGCAGCCATGCCGCGTGTATGAAGAAGGCCTTCGGGTTGTAAAGTACTTTCAGCGGGGAGGAAGGTGTTGTGGTTAATAACCGCAGCAATTGACGTTACCCGCAGAAGAAGCACCGGCTAACTCCGTGCCAGCAGCCGCGGTAATACGGAGGGTGCAAGCGTTAATCGGAATTACTGGGCGGAAAGCGCA"
+    fasta1 = """TGGGGAATATTGCACAATGGGCGCAAGCCTGATGCAGCCATGCCGCGTGTATGAAGAAGGCCTTCGGGTTGTAAAGTACT
+    TTCAGCGGGGAGGAAGGTGTTGTGGTTAATAACCGCAGCAATTGACGTTACCCGCAGAAGAAGCACCGGCTAACTCCGTG
+    CCAGCAGCCGCGGTAATACGGAGGGTGCAAGCGTTAATCGGAATTACTGGGCGGAAAGCGCA"""
+    fasta2 = """TAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTCGGATCGTAAAACTCT
+GTTATTAGGGAAGAACATATGTGTAAGTAACTGTGCACATCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACGTG
+CCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTATCCGGAATTATTGGGCGTACAGCGCG"""
+    seq2 = "TAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTCGGATCGTAAAACTCTGTTATTAGGGAAGAACATATGTGTAAGTAACTGTGCACATCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACGTGCCAGCAGCCGCGGTAATACGTAGGTGGCAAGCGTTATCCGGAATTATTGGGCGTACAGCGCG"
+    print(seq1, len(seq1))
+    print(fasta1, len(fasta1))
+    print(gen1, len(gen1))
+    print(seq1==gen1)
+    print(seq2, len(seq2))
+    print(fasta2, len(fasta2))
+    print(gen2, len(gen2))
+    print(seq2==gen2)
 
 if __name__ == '__main__':
     main()

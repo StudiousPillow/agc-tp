@@ -171,9 +171,7 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
         for otu in OTU_list:
             n+=1
             handle.write(f'>OTU_{n} occurrence:{otu[1]}\n')
-            handle.write(textwrap.fill(otu[0],width=80))
-            if n != len(OTU_list):
-                handle.write('\n')
+            handle.write(textwrap.fill(otu[0],width=80)+"\n")
 
 #==============================================================
 # Main program
@@ -194,20 +192,6 @@ def main(): # pragma: no cover
     # OTU_list = abundance_greedy_clustering('tests/test_sequences.fasta.gz', 200, 3, 50, 8)
     # print(seq1 in OTU_list)
     
-    otu = [("TCAGCGAT", 8), ("TCAGCGAA", 8), ("ACAGCGAT", 8), ("ACAGCGAA", 8)]
-    write_OTU(otu, 'results/test.fasta')
-    import hashlib
-    with open('results/test.fasta', 'rb') as f:
-        print(hashlib.md5(f.read()).hexdigest())
-        print('0a7caf3d43ba5f0c68bc05cb74782dbb')
-    with open('results/test.fasta', 'r') as f:
-        print(f.read())
-    with open('results/test.fasta', 'r') as f:
-        print(repr(f.read()))
-        # print(f.read())
-    # write_OTU(OTU_list, "results/OTU_found.fasta")
-    
-
     
 if __name__ == '__main__':
     main()
